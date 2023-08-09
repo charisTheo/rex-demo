@@ -1,0 +1,22 @@
+{
+  "name": "rex-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "echo \"No scripts\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charisTheo/rex-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charisTheo/rex-demo/issues"
+  },
+  "homepage": "https://github.com/charisTheo/rex-demo#readme",
+  "dependencies": {}
+}
