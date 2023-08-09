@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "export DEBUG=server:*&&NODE_ENV=development node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.6",
+    "debug": "~4.3.4",
+    "express": "^4.18.2",
+    "googleapis": "^123.0.0",
+    "googleapis-common": "^7.0.0",
+    "morgan": "~1.10.0",
+    "open": "^9.1.0",
+    "server-destroy": "^1.0.1"
+  }
+}
