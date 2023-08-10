@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
+  "engines": {
+    "node": ">18"
+  },
   "scripts": {
-    "start": "echo \"No scripts\""
+    "start": "node ./server/bin/www",
+    "dev": "export DEBUG=server:*&&NODE_ENV=development nodemon ./server/bin/www",
+    "lint": "eslint './**/*.js' --fix --ignore-pattern 'node_modules/**'"
   },
   "repository": {
     "type": "git",
@@ -13,10 +18,32 @@
   },
   "keywords": [],
   "author": "",
+  "pre-commit": [
+    "precommit-msg",
+    "lint"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/charisTheo/rex-demo/issues"
   },
   "homepage": "https://github.com/charisTheo/rex-demo#readme",
-  "dependencies": {}
+  "dependencies": {
+    "@material/web": "^1.0.0-pre.14",
+    "@puppeteer/replay": "^2.13.3",
+    "cookie-parser": "~1.4.6",
+    "debug": "~4.3.4",
+    "express": "^4.18.2",
+    "googleapis": "^123.0.0",
+    "googleapis-common": "^7.0.0",
+    "morgan": "~1.10.0",
+    "normalize-url": "^5.3.0",
+    "open": "^9.1.0",
+    "puppeteer": "^21.0.2",
+    "server-destroy": "^1.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^2.0.22"
+  }
 }

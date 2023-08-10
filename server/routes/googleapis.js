@@ -1,18 +1,24 @@
-var express = require('express');
-const { getAuthorizeUrl, attachCredentials } = require('../controllers/googleapis');
-var router = express.Router();
+import express from 'express';
+import {
+  getAuthorizeUrl,
+  attachCredentials,
+  getReport,
+} from '../controllers/googleapis.js';
+const router = new express.Router();
 
 router.get('/oauth2Url', function(req, res, next) {
   const url = getAuthorizeUrl();
-  res.send({ url });
+  res.send({url});
 });
 
-router.get('/oauth2Callback/:code', async (req, res) => {
-  const { code } = req.params;
-  await attachCredentials(code)
+router.get('/oauth2Callback', async (req, res) => {
+  const {code} = req.query;
+  const oauth2Client = await attachCredentials(code);
+  const data = getReport(oauth2Client);
+  console.log('👨‍💻 | router.get | data:', data);
   res.send('Authentication successfull');
   // TODO redirect to homepage
   // res.redirect('/');
-})
+});
 
-module.exports = router;
+export default router;

@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "globalReturn": true,
+      "jsx": false
+    },
+    "sourceType": "module"
+  },
+  "rules": {
+    "max-len": "off"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  }
+}
