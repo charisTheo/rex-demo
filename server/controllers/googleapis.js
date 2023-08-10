@@ -1,10 +1,7 @@
-import path from 'path';
-import fs from 'fs';
 import {google} from 'googleapis';
-import log from '../utils/log.js';
+import keys from './oauth-client-secret.json' assert { type: 'json' };
 
 const analyticsData = google.analyticsdata('v1beta');
-import keys from './oauth-client-secret.json' assert { type: 'json' };
 
 // https://www.drivingcost.eu/
 const propertyId = '401545965';
