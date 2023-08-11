@@ -1,26 +1,11 @@
 import '../css/global.css';
-
+import '@material/web/button/filled-tonal-button.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const main = document.querySelector('#main');
-  const counter = main.querySelector('#counter');
-
-  main.addEventListener('click', (event) => {
-    const { id, type } = event.target;
-
-    if (type === 'button') {
-      const currentCount = Number(counter.textContent);
-
-      switch (id) {
-        case 'increment': {
-          counter.textContent = currentCount + 1;
-          break;
-        }
-        case 'decrement': {
-          counter.textContent = currentCount - 1;
-          break;
-        }
-      }
-    }
-  });
+  const loginWithGoogleButton = document.querySelector('#login-with-google-button');
+  loginWithGoogleButton.addEventListener('click', async () => {
+    const response = await fetch('/api/googleapis/oauth2Url');
+    const { url } = await response.json();
+    window.open(url)
+  })
 });

@@ -17,8 +17,8 @@ app.set('view engine', 'html');
 app.set('src', './../front-end/dist');
 app.use(express.static('src'));
 
-app.use('/', indexRouter);
-app.use('/googleapis', googleApisRouter);
-app.use('/replay', replayRouter);
+app.use('/api', indexRouter);
+app.use('/api/googleapis', googleApisRouter);
+app.use('/api/replay', replayRouter);
 
 export default app;

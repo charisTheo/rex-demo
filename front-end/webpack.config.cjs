@@ -139,7 +139,13 @@ module.exports = () => {
       },
       hot: true,
       server: 'http',
-      historyApiFallback: true
+      historyApiFallback: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          secure: false
+        }
+      }
     },
     devtool: isProduction ? false : 'source-map'
   };
