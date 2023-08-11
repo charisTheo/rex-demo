@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "google"
+  ],
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "globalReturn": true,
+      "jsx": false
+    },
+    "sourceType": "module",
+    "requireConfigFile": false,
+    "babelOptions": {
+      "plugins": [
+        "@babel/plugin-syntax-import-assertions"
+      ]
+    }
+  },
+  "rules": {
+    "max-len": "off"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  }
+}

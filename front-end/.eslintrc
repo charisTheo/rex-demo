@@ -1,7 +1,6 @@
 {
   "extends": [
-    "eslint:recommended",
-    "google"
+    "eslint:recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020,
@@ -11,11 +10,10 @@
     },
     "sourceType": "module"
   },
-  "rules": {
-    "max-len": "off"
-  },
+  "plugins": ["simple-import-sort", "promise", "prettier"],
   "env": {
     "node": true,
+    "browser": true,
     "es6": true
   }
 }

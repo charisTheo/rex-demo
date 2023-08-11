@@ -1,4 +1,4 @@
-import app from '../app.js';
+import app from '../server.js';
 import log from '../utils/log.js';
 import http from 'http';
 

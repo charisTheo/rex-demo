@@ -13,9 +13,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
-
 app.set('view engine', 'html');
-app.set('src', './public');
+app.set('src', './../front-end/dist');
 app.use(express.static('src'));
 
 app.use('/', indexRouter);
