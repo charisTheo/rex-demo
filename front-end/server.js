@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prefer-module */
 const express = require('express');
 const path = require('node:path');
 

@@ -139,6 +139,7 @@ module.exports = () => {
       },
       hot: true,
       server: 'http',
+      port: 8080,
       historyApiFallback: true,
       proxy: {
         '/api': {
