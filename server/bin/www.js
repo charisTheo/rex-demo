@@ -1,7 +1,8 @@
+import 'dotenv/config';
+
 import app from '../server.js';
 import log from '../utils/log.js';
 import http from 'http';
-
 
 /**
  * Get port from environment and store in Express.
