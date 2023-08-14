@@ -12,7 +12,7 @@ export default function auth(req, res, next) {
       throw new Error();
     }
     // refresh token
-    const token = jwt.sign({code: data.code}, process.env.JWT_SECRET);
+    const token = jwt.sign({accessToken: data.accessToken}, process.env.JWT_SECRET);
     // add decoded token data to request object
     req.data = data;
     res.cookie('token', token, {httpOnly: true});

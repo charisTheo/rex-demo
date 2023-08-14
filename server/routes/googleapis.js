@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 
 import {
   getAuthorizeUrl,
-  getProperties,
+  getAccounts,
   getReport,
+  getAccessTokenFromCode,
 } from '../controllers/googleapis.js';
 import auth from '../middleware/auth.js';
 const router = new express.Router();
@@ -17,7 +18,10 @@ router.get('/oauth2Url', (req, res) => {
 router.get('/oauth2Callback', async (req, res) => {
   const {code} = req.query;
   try {
-    const token = jwt.sign({code}, process.env.JWT_SECRET);
+    const token = jwt.sign(
+        {accessToken: await getAccessTokenFromCode(code)},
+        process.env.JWT_SECRET,
+    );
     if (!code || !token) {
       throw new Error();
     }
@@ -30,20 +34,20 @@ router.get('/oauth2Callback', async (req, res) => {
   }
 });
 
-router.get('/analytics/properties', auth, async (req, res) => {
-  const {code} = req.data;
-  const properties = await getProperties(code);
-  res.send({properties});
+router.get('/analytics/accounts', auth, async (req, res) => {
+  const {accessToken} = req.data;
+  const accounts = await getAccounts(accessToken);
+  res.send({accounts});
 });
 
 router.get('/analytics/report', auth, async (req, res) => {
-  const {code} = req.data;
+  const {accessToken} = req.data;
   const {propertyId} = req.params;
   if (!propertyId) {
     return res.status(400).send('Property ID is required');
   }
 
-  const properties = getReport(code, propertyId);
+  const properties = await getReport(accessToken, propertyId);
   res.send({properties});
 });
 
