@@ -42,13 +42,13 @@ router.get('/analytics/accounts', auth, async (req, res) => {
 
 router.get('/analytics/report', auth, async (req, res) => {
   const {accessToken} = req.data;
-  const {propertyId} = req.params;
-  if (!propertyId) {
-    return res.status(400).send('Property ID is required');
+  const {propertyName} = req.query;
+  if (!propertyName) {
+    return res.status(400).send('`propertyName` is required');
   }
 
-  const properties = await getReport(accessToken, propertyId);
-  res.send({properties});
+  const report = await getReport(accessToken, propertyName);
+  res.send({report});
 });
 
 export default router;

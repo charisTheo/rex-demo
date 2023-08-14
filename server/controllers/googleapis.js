@@ -1,5 +1,6 @@
 import {google} from 'googleapis';
 import keys from './oauth-client-secret.json' assert { type: 'json' };
+import {getReportDateFilterString} from '../utils/date.js';
 
 const analyticsData = google.analyticsdata('v1beta');
 const analyticsAdmin = google.analyticsadmin('v1beta');
@@ -68,44 +69,69 @@ export async function getAccounts(accessToken) {
 
 /**
  * ? Docs: https://developers.google.com/analytics/devguides/reporting/data/v1
+ * TODO Custom metrics: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#custom_metrics
+ * TODO Custom dimensions: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#custom_dimensions
+ *
  * @param {String} accessToken
  * @param {String} propertyName
  * @return {[google.Row]}
  */
 export async function getReport(accessToken, propertyName) {
-  propertyName = propertyName || 'properties/401545965'; // https://www.drivingcost.eu/
-
-  // TODO dates for this month | last 28 days?
-  const startDate = '2023-07-29';
-  const endDate = '2023-08-03';
+  // filter for last 28 days
+  const date = new Date();
+  const endDate = getReportDateFilterString(date);
+  date.setDate(date.getDate() - 28);
+  const startDate = getReportDateFilterString(date);
 
   // ? runReport docs: https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport
   const response = await analyticsData.properties.runReport({
     access_token: accessToken,
     property: propertyName,
     requestBody: {
-      dateRanges: [
-        {
-          startDate,
-          endDate,
-        },
-      ],
+      dateRanges: [{startDate, endDate}],
+      // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#dimensions
+      // other helpful dimensions: deviceModel, mobileDeviceModel
       dimensions: [
+        {name: 'eventName'},
         {
-          name: 'city',
+          name: 'URL',
+          dimensionExpression: {
+            concatenate: {
+              dimensionNames: ['hostname', 'pagePath'],
+              delimiter: ' ',
+            },
+          },
         },
+        {name: 'browser'},
+        {name: 'deviceCategory'},
+        {name: 'operatingSystem'},
       ],
+      // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics
       metrics: [
-        {
-          name: 'activeUsers',
-        },
+        {name: 'eventValue'},
       ],
+      dimensionFilter: {
+        filter: {
+          fieldName: 'eventName',
+          stringFilter: {
+            matchType: 'EXACT',
+            value: 'INP',
+            caseSensitive: false,
+          },
+        },
+      },
     },
   });
 
-  // console.log('Report result:');
-  // response.data.rows.forEach((row) => {
-  //   console.log(row.dimensionValues[0], row.metricValues[0]);
-  // });
+  if (response?.data) {
+    // remove empty space delimiter added for 'hostname' and 'pagePath' dimensions
+    response.data.rows = response.data.rows.map((r) => ({
+      ...r,
+      dimensionValues: r.dimensionValues.map((d) => ({
+        ...d,
+        value: d.value.split(' ').join(''),
+      })),
+    }));
+  }
   return response?.data;
 }
