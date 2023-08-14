@@ -76,3 +76,36 @@ md-list-item[selected] > md-icon,
 md-list-item:hover > md-icon {
   visibility: visible;
 }
+
+#report-wrapper {
+  min-height: 50px;
+  margin: 4rem auto;
+  width: 100%;
+  max-width: 800px;
+}
+
+table {
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 8px;
+  width: 100%;
+}
+thead, tfoot {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+tbody {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+td, th {
+  border-bottom: 2px solid var(--md-sys-color-background);
+  padding: 18px 12px;
+  text-align: center;
+}
+tbody > tr {
+  cursor: pointer;
+}
+tbody > tr:hover {
+  background-color: var(--row-highlight-background);
+}

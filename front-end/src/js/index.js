@@ -4,7 +4,80 @@ import '@material/web/button/filled-tonal-button.js';
 import '@material/web/icon/icon';
 import '@material/web/list/list';
 import '@material/web/list/list-item';
-import '@material/web/progress/circular-progress'
+import '@material/web/progress/circular-progress';
+import { hideReportLoadingIndicator, showPageLoadingIndicator, showReportLoadingIndicator } from './utils';
+import { getGoogleAuthUrl, fetchAnalyticsAccounts, fetchAnalyticsReport, formatRawReportObject } from './api';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.location.search.indexOf('auth=1') >= 0) {
+    document.querySelector('#google-analytics-wrapper').removeAttribute('hidden');
+    const accounts = await fetchAnalyticsAccounts();
+    renderAnalyticsAccounts(accounts);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    renderAnalyticsProperties(accounts);
+  } else {
+    document.querySelector('#login-with-google-button-wrapper').removeAttribute('hidden');
+    const loginWithGoogleButton = document.querySelector('#login-with-google-button');
+    loginWithGoogleButton.addEventListener('click', async () => {
+      showPageLoadingIndicator();
+      const url = await getGoogleAuthUrl();
+      location.href = url;
+    });
+  }
+});
+
+function renderAnalyticsAccounts(accounts) {
+  const accountsListEl = document.querySelector('#accounts-list');
+
+  // render accounts list
+  accountsListEl.innerHTML += `
+    ${accounts.map(a => `
+      <md-list-item data-account="${a.name}" headline="${a.displayName}" supportingText="${a.name}">
+        <md-icon data-variant="icon" slot="end">chevron_right</md-icon>
+      </md-list-item>
+    `).join('')}
+  `;
+
+  // Add click event listeners to account list items
+  accountsListEl
+    .querySelectorAll('md-list-item')
+    .forEach((li) => li.addEventListener('click', toggleSelected));
+
+  // Remove accounts loading indicator
+  document
+    .querySelector('#google-analytics-lists .loading-indicator')
+    .remove();
+
+  // Show accounts list
+  accountsListEl.removeAttribute('hidden');
+}
+
+function renderAnalyticsProperties(accounts) {
+  const propertiesListEl = document.querySelector('#properties-list');
+  accounts.forEach(({properties, name: accountName}) => {
+    // properties for each account are hidden by default
+    // will be shown on account click event listener `toggleSelected`
+    propertiesListEl.innerHTML += `
+      ${properties.map(p => `
+        <md-list-item 
+          hidden 
+          data-account="${accountName}" 
+          data-property="${p.name}" 
+          headline="${p.displayName}" 
+          supportingText="${p.name}"
+        >
+          <md-icon data-variant="icon" slot="end">folder_open</md-icon>
+        </md-list-item>
+      `).join('')}
+    `;
+  });
+
+  // Add click event listeners to account list items
+  propertiesListEl
+    .querySelectorAll('md-list-item')
+    .forEach((li) => li.addEventListener('click', handlePropertyListItemClick));
+
+}
 
 async function toggleSelected(e) {
   const el = e.target;
@@ -12,7 +85,7 @@ async function toggleSelected(e) {
 
   if (el.getAttribute('selected')) {
     el.removeAttribute('selected');
-    propertiesListEl.setAttribute('hidden', 'true')
+    propertiesListEl.setAttribute('hidden', 'true');
   } else {
     // remove attribute from previously selected element if there is any
     const parentEl = el.parentElement;
@@ -25,66 +98,73 @@ async function toggleSelected(e) {
     const propertiesListItemsEl = propertiesListEl.querySelectorAll('md-list-item');
     propertiesListItemsEl.forEach(listItem => {
       if (listItem.dataset.account === el.dataset.account) {
-        listItem.removeAttribute('hidden')
+        listItem.removeAttribute('hidden');
       } else {
-        listItem.setAttribute('hidden', 'true')
+        listItem.setAttribute('hidden', 'true');
       }
     });
-    propertiesListEl.removeAttribute('hidden')
+    propertiesListEl.removeAttribute('hidden');
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const loginWithGoogleButton = document.querySelector('#login-with-google-button');
-  loginWithGoogleButton.addEventListener('click', async () => {
+async function handlePropertyListItemClick(e) {
+  showReportLoadingIndicator();
+  const propertyListItemEl = e.target;
+  const propertyName = propertyListItemEl.dataset.property;
+  const rawReport = await fetchAnalyticsReport(propertyName);
+  const report = formatRawReportObject(rawReport)
+  await renderReport(report);
+  hideReportLoadingIndicator();
+}
 
-    document
-      .querySelector('body > .loading-indicator')
-      .removeAttribute('hidden');
+async function renderReport({ dimensionHeaders, metricHeaders, rows }) {
+  const reportTableEl = document.querySelector('#report-table');
+  reportTableEl.innerHTML = ''
 
-    const response = await fetch('/api/googleapis/oauth2Url');
-    const { url } = await response.json();
-    location.href = url
-  });
+  const tableHeaders = `
+    <thead>
+      <tr>
+        ${
+          [...dimensionHeaders, ...metricHeaders]
+            .map(h => `<th>${h}</th>`)
+            .join('')
+        }
+      </tr>
+    </thead>
+  `;
 
-  if (window.location.search.indexOf('auth=1') >= 0) {
-    document.querySelector('#google-analytics-wrapper').removeAttribute('hidden')
-    const response = await fetch('/api/googleapis/analytics/accounts');
-    const {accounts} = await response.json();
-    const accountsListEl = document.querySelector('#accounts-list');
+  const tableRows = `
+    <tbody>
+      ${rows.map((r, i) => `
+        <tr data-index="${i}">
+          ${
+            [...r.dimensionValues, ...r.metricValues]
+              .map(v => `<td>${v}</td>`)
+              .join('')
+          }
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
 
-    // render accounts list
-    accountsListEl.innerHTML += `
-      ${accounts.map(a => `
-        <md-list-item data-account="${a.name}" headline="${a.displayName}" supportingText="${a.name}">
-          <md-icon data-variant="icon" slot="end">chevron_right</md-icon>
-        </md-list-item>
-      `).join("")}
-    `
-    document
-      .querySelector('#google-analytics-lists .loading-indicator')
-      .remove();
-    accountsListEl.removeAttribute('hidden');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  
+  reportTableEl.innerHTML += tableHeaders;
+  reportTableEl.innerHTML += tableRows;
+  
+  // Add click event listeners on table rows
+  reportTableEl
+    .querySelectorAll('tbody > tr')
+    .forEach(r => r.addEventListener('click', (e) => handleRowClick(e, rows)));
 
-    await new Promise(resolve => setTimeout(resolve, 0));
-    const accountsListItemsEl = document.querySelectorAll('#accounts-list > md-list-item');
-    accountsListItemsEl.forEach((li) => li.addEventListener('click', toggleSelected))
+  // Show report table
+  reportTableEl.removeAttribute('hidden');
+}
 
-    // render properties list
-    const propertiesListEl = document.querySelector('#properties-list');
-    accounts.forEach(({properties, name: accountName}) => {
-      propertiesListEl.innerHTML += `
-        ${properties.map(p => `
-          <md-list-item 
-            hidden 
-            data-account="${accountName}" 
-            headline="${p.displayName}" 
-            supportingText="${p.name}"
-          >
-            <md-icon data-variant="icon" slot="end">folder_open</md-icon>
-          </md-list-item>
-        `).join("")}
-      `;
-    })
-  }
-});
+function handleRowClick(e, rows) {
+  const rowEl = e.target.parentElement;
+  const rowIndex = parseInt(rowEl.dataset.index, 10);
+  const row = rows[rowIndex];
+  // TODO replay event for row
+  console.log("handleRowClick ~ row:", row);
+}
