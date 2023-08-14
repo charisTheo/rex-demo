@@ -1,104 +1,78 @@
-:root {
-  --container-padding: 20px;
-
-  --md-filled-tonal-button-label-text-type: 400 0.875rem/1.25rem "Bricolage Grotesque";
-
-  /* Material Baseline colors */
-  /* https://m3.material.io/styles/color/the-color-system/tokens#e26e130c-fa67-48e1-81ca-d28f6e4ed398 */
-  --primary: #6750A4;
-  --primary-container: #EADDFF;
-  --on-primary: #FFFFFF;
-  --on-primary-container: #21005E;
-  --inverse-primary: #D0BCFF;
-  --secondary: #625B71;
-  --secondary-container: #E8DEF8;
-  --on-secondary: #FFFFFF;
-  --on-secondary-container: #1E192B;
-  --tertiary: #7D5260;
-  --tertiary-container: #FFD8E4;
-  --on-tertiary: #FFFFFF;
-  --on-tertiary-container: #370B1E;
-  --surface: #FEF7FF;
-  --surface-dim: #DED8E1;
-  --surface-bright: #FEF7FF;
-  --surface-container-lowest: #FFFFFF;
-  --surface-container-low: #F7F2FA;
-  --surface-container: #F3EDF7;
-  --surface-container-high: #ECE6F0;
-  --surface-container-highest: #E6E0E9;
-  --surface-variant: #E7E0EC;
-  --on-surface: #1C1B1F;
-  --on-surface-variant: #49454E;
-  --inverse-surface: #313033;
-  --inverse-on-surface: #F4EFF4;
-  --background: #FEF7FF;
-  --on-background: #1C1B1F;
-  --error: #B3261E;
-  --error-container: #F9DEDC;
-  --on-error: #FFFFFF;
-  --on-error-container: #410E0B;
-  --outline-variant: #C4C7C5;
-  --shadow: #000000;
-  --surface-tint-color: #6750A4;
-  --scrim: #000000;
-  /* END Material Baseline colors */
-}
-
 body, html {
-  background-color: var(--background);
-  color: var(--on-background);
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
   margin: 0;
   padding: 0;
   font-family: 'Bricolage Grotesque', sans-serif;
   font-weight: 400;
+  height: 100%;
 }
 
 header, main, footer {
   padding: var(--container-padding);
 }
 
-header h1 {
-  font-size: 150%;
-  margin: 0;
+main {
+  position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #D0BCFF;
-    --primary-container: #4F378B;
-    --on-primary: #371E73;
-    --on-primary-container: #EADDFF;
-    --inverse-primary: #6750A4;
-    --secondary: #CCC2DC;
-    --secondary-container: #4A4458;
-    --on-secondary: #332D41;
-    --on-secondary-container: #E8DEF8;
-    --tertiary: #EFB8C8;
-    --tertiary-container: #633B48;
-    --on-tertiary: #492532;
-    --on-tertiary-container: #FFD8E4;
-    --surface: #141218;
-    --surface-dim: #141218;
-    --surface-bright: #3B383E;
-    --surface-container-lowest: #0F0D13;
-    --surface-container-low: #1D1B20;
-    --surface-container: #211F26;
-    --surface-container-high: #2B2930;
-    --surface-container-highest: #36343B;
-    --surface-variant: #49454F;
-    --on-surface: #E6E1E5;
-    --on-surface-variant: #CAC4D0;
-    --inverse-surface: #E6E1E5;
-    --inverse-on-surface: #313033;
-    --background: #141218;
-    --on-background: #E6E1E5;
-    --error: #F2B8B5;
-    --error-container: #8C1D18;
-    --on-error: #601410;
-    --on-error-container: #F9DEDC;
-    --outline-variant: #444746;
-    --shadow: #000000;
-    --surface-tint-color: #D0BCFF;
-    --scrim: #000000;
-  }
+header h1 {
+  font-size: 180%;
+  margin: 0;
+  color: var(--md-sys-color-primary);
+}
+
+.loading-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  background-color: var(--loading-indicator-background);
+}
+.loading-indicator[hidden] {
+  display: none;
+}
+
+#login-with-google-button-wrapper {
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+#google-analytics-wrapper h2 {
+  display: inline-block;
+  border-bottom: 2px solid;
+  padding-bottom: 1rem;
+  margin-bottom: 0;
+}
+#google-analytics-lists {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  position: relative;
+  min-height: 50px;
+}
+#google-analytics-lists > md-list {
+  width: 50%;
+  max-width: 50%;
+  border-radius: 4px;
+}
+#properties-list {
+  --md-list-container-color: var(--md-sys-color-surface-container-highest);
+  --md-list-item-list-item-container-color: var(--md-sys-color-surface-container-highest);
+}
+md-list-item[selected] {
+  --md-list-item-list-item-container-color: var(--md-sys-color-surface-container-highest);
+}
+md-list-item:not([selected]) > md-icon {
+  visibility: hidden;
+}
+md-list-item[selected] > md-icon,
+md-list-item:hover > md-icon {
+  visibility: visible;
 }
