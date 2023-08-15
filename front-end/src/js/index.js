@@ -29,19 +29,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderAnalyticsAccounts(accounts) {
   const accountsListEl = document.querySelector('#accounts-list');
 
-  // render accounts list
-  accountsListEl.innerHTML += `
-    ${accounts.map(a => `
-      <md-list-item data-account="${a.name}" headline="${a.displayName}" supportingText="${a.name}">
-        <md-icon data-variant="icon" slot="end">chevron_right</md-icon>
-      </md-list-item>
-    `).join('')}
-  `;
-
-  // Add click event listeners to account list items
-  accountsListEl
-    .querySelectorAll('md-list-item')
-    .forEach((li) => li.addEventListener('click', toggleSelected));
+  if (!accounts?.length) {
+    accountsListEl.innerHTML += `
+      <md-list-item
+        headline="No Analytics Accounts were found for this Google Account."
+        supportingText="Make sure you are logged in with your correct Google Account."
+      ></md-list-item>
+    `
+  } else {
+    // render accounts list
+    accountsListEl.innerHTML += `
+      ${accounts.map(a => `
+        <md-list-item data-account="${a.name}" headline="${a.displayName}" supportingText="${a.name}">
+          <md-icon data-variant="icon" slot="end">chevron_right</md-icon>
+        </md-list-item>
+      `).join('')}
+    `;
+  
+    // Add click event listeners to account list items
+    accountsListEl
+      .querySelectorAll('md-list-item')
+      .forEach((li) => li.addEventListener('click', toggleSelected));
+  }
 
   // Remove accounts loading indicator
   document
@@ -53,6 +62,9 @@ function renderAnalyticsAccounts(accounts) {
 }
 
 function renderAnalyticsProperties(accounts) {
+  if (!accounts?.length) {
+    return;
+  }
   const propertiesListEl = document.querySelector('#properties-list');
   accounts.forEach(({properties, name: accountName}) => {
     // properties for each account are hidden by default
@@ -117,8 +129,20 @@ async function handlePropertyListItemClick(e) {
   hideReportLoadingIndicator();
 }
 
-async function renderReport({ dimensionHeaders, metricHeaders, rows }) {
+async function renderReport(report) {
   const reportTableEl = document.querySelector('#report-table');
+
+  if (!report) {
+    reportTableEl.innerHTML = `
+      <tr style="text-align:center">
+        <td><h3>No results were found :/</h3></td>
+      </tr>
+    `
+    reportTableEl.removeAttribute('hidden');
+    return;
+  }
+
+  const { dimensionHeaders, metricHeaders, rows } = report;
   reportTableEl.innerHTML = ''
 
   const tableHeaders = `

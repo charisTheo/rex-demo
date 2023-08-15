@@ -69,8 +69,7 @@ export async function getAccounts(accessToken) {
 
 /**
  * ? Docs: https://developers.google.com/analytics/devguides/reporting/data/v1
- * TODO Custom metrics: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#custom_metrics
- * TODO Custom dimensions: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#custom_dimensions
+ * TODO Check if desired custom dimensions exist with getMetadata: https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/getMetadata
  *
  * @param {String} accessToken
  * @param {String} propertyName
@@ -102,9 +101,11 @@ export async function getReport(accessToken, propertyName) {
             },
           },
         },
+        {name: 'operatingSystem'},
         {name: 'browser'},
         {name: 'deviceCategory'},
-        {name: 'operatingSystem'},
+        {name: 'screenResolution'},
+        // TODO {name: 'customEvent:debug_target'},
       ],
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics
       metrics: [
@@ -123,7 +124,7 @@ export async function getReport(accessToken, propertyName) {
     },
   });
 
-  if (response?.data) {
+  if (response?.data?.rows) {
     // remove empty space delimiter added for 'hostname' and 'pagePath' dimensions
     response.data.rows = response.data.rows.map((r) => ({
       ...r,

@@ -81,7 +81,6 @@ md-list-item:hover > md-icon {
   min-height: 50px;
   margin: 4rem auto;
   width: 100%;
-  max-width: 800px;
 }
 
 table {
@@ -89,6 +88,7 @@ table {
   overflow: hidden;
   border-radius: 8px;
   width: 100%;
+  font-size: 120%;
 }
 thead, tfoot {
   background-color: var(--md-sys-color-primary-container);

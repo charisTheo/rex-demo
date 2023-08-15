@@ -36,8 +36,15 @@ router.get('/oauth2Callback', async (req, res) => {
 
 router.get('/analytics/accounts', auth, async (req, res) => {
   const {accessToken} = req.data;
-  const accounts = await getAccounts(accessToken);
-  res.send({accounts});
+  try {
+    const accounts = await getAccounts(accessToken);
+    res.send({accounts});
+  } catch (err) {
+    console.log('👨‍💻 | /analytics/accounts | err:', err);
+    res
+        .status(err.toString().indexOf('Invalid Credentials') >= 0 ? 401 : 500)
+        .send('There was an error.');
+  }
 });
 
 router.get('/analytics/report', auth, async (req, res) => {
@@ -47,8 +54,15 @@ router.get('/analytics/report', auth, async (req, res) => {
     return res.status(400).send('`propertyName` is required');
   }
 
-  const report = await getReport(accessToken, propertyName);
-  res.send({report});
+  try {
+    const report = await getReport(accessToken, propertyName);
+    res.send({report});
+  } catch (err) {
+    console.log('👨‍💻 | /analytics/report | err:', err);
+    res
+        .status(err.toString().indexOf('Invalid Credentials') >= 0 ? 401 : 500)
+        .send('There was an error.');
+  }
 });
 
 export default router;
