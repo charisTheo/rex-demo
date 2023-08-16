@@ -1,28 +1,69 @@
 import puppeteer from 'puppeteer';
 import log from '../utils/log.js';
+import {PredefinedNetworkConditions} from 'puppeteer';
+const { randomUUID } = await import('node:crypto');
 
 /**
- *
- * @param {Object} instructions
+ * 
+ * @param {*} config 
+ * @returns 
+ * Given a config file this function will perform a simple tracing based on the config
  */
-async function render(instructions) {
-  const result = await run(instructions);
-  log('render ~ result:', result);
+async function tracing(config) {
+    const pageUrl = config.pageUrl;
+    const emulateCPUThrottling = config.emulateCPUThrottling;
+    const slow3G = config.slow3G;
+    const viewportConfig = config.viewportConfig;
+    const traceFileName = `${randomUUID()}.json`;    
+    // Launch the browser and open a new blank page
+    const browser = await puppeteer.launch({headless: 'new'});
+    const page = await browser.newPage();
+    // Set screen size
+    if(viewportConfig) {
+        await page.setViewport(viewportConfig); 
+    }
+    // Set network condition
+    if(slow3G) {
+        await page.emulateNetworkConditions(PredefinedNetworkConditions['Slow 3G']);
+    }
+    //set CPU condition
+    if(emulateCPUThrottling) {
+        await page.emulateCPUThrottling(4);
+    }
+    try {
+        // Configure the navigation timeout
+        await page.setDefaultNavigationTimeout(0);
+        //start tracing 
+        await page.tracing.start({path: traceFileName});
+        // Navigate the page to a URL
+        await page.goto(pageUrl);
+        await page.tracing.stop();
+        await browser.close();
+        return traceFileName;
+    }catch(error) {
+        return undefined;
+    }
+
 }
 
 /**
- * TODO: Run replay experience and return DevTools Performance timeline
- * @param {Object} instructions
+ * 
+ * @param {*} pageUrl 
+ * Given a page Url this function will run tracing experience 
+ * then open the result in a tracing view
  */
-async function run(instructions) {
-  log('Rendering new URL: ', instructions.url);
-  // eslint-disable-next-line no-unused-vars
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    // eslint-disable-next-line max-len
-    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  });
+
+async function replayExperience(pageUrl, emulateCPUThrottling, slow3G, viewportConfig) {
+    try {
+        const traceResultJson = await tracing({pageUrl, emulateCPUThrottling, slow3G, viewportConfig});
+        if(traceResultJson !== undefined) {
+            return traceResultJson;
+        }else {
+            return null;
+        }
+    } catch (error) {
+        return null;
+    }
 }
 
-export {render};
+export {replayExperience};
