@@ -16,6 +16,8 @@ app.use(cookieParser());
 app.set('view engine', 'html');
 app.set('src', './../front-end/dist');
 app.use(express.static('src'));
+app.set('traces', './traces');
+app.use('/trace', express.static('traces'));
 
 app.use('/api', indexRouter);
 app.use('/api/googleapis', googleApisRouter);
