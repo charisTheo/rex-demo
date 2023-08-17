@@ -5,8 +5,8 @@ import '@material/web/icon/icon';
 import '@material/web/list/list';
 import '@material/web/list/list-item';
 import '@material/web/progress/circular-progress';
-import { hideReportLoadingIndicator, showPageLoadingIndicator, showReportLoadingIndicator } from './utils';
-import { getGoogleAuthUrl, fetchAnalyticsAccounts, fetchAnalyticsReport, formatRawReportObject } from './api';
+import { hidePageLoadingIndicator, hideReportLoadingIndicator, showPageLoadingIndicator, showReportLoadingIndicator } from './utils';
+import { getGoogleAuthUrl, fetchAnalyticsAccounts, fetchAnalyticsReport, formatRawReportObject, getTraceFromReplay } from './api';
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (window.location.search.indexOf('auth=1') >= 0) {
@@ -153,6 +153,7 @@ async function renderReport(report) {
             .map(h => `<th>${h}</th>`)
             .join('')
         }
+        <th></th>
       </tr>
     </thead>
   `;
@@ -166,6 +167,7 @@ async function renderReport(report) {
               .map(v => `<td>${v}</td>`)
               .join('')
           }
+          <td><md-icon color="primary">replay</md-icon></td>
         </tr>
       `).join('')}
     </tbody>
@@ -185,10 +187,44 @@ async function renderReport(report) {
   reportTableEl.removeAttribute('hidden');
 }
 
-function handleRowClick(e, rows) {
+async function handleRowClick(e, rows) {
   const rowEl = e.target.parentElement;
   const rowIndex = parseInt(rowEl.dataset.index, 10);
   const row = rows[rowIndex];
-  // TODO replay event for row
-  console.log("handleRowClick ~ row:", row);
+  
+  if (row) {
+    const [
+      url,
+      deviceCategory,
+      screenResolution,
+      deviceModel,
+      debugTarget,
+      // debugType,
+    ] = row.dimensionValues;
+
+    // TODO open modal with options configuration
+
+    showPageLoadingIndicator();
+    const traceFilename = await getTraceFromReplay({
+      url,
+      deviceCategory,
+      screenResolution,
+      deviceModel,
+      debugTarget
+    });
+    hidePageLoadingIndicator();
+    if (traceFilename) {
+      // window.open(`/trace/${traceFilename}`, '_blank');
+
+      // TODO Show Perf timeline: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/dev_tools.js#L33
+      if (typeof Runtime !== 'undefined' ) {
+        localStorage.setItem('uiTheme', JSON.stringify('dark'))
+        // eslint-disable-next-line no-undef
+        Runtime.startApplication('timelineviewer_app');
+      }
+
+    } else {
+      // TODO show error
+    }
+  }
 }

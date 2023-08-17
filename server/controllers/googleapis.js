@@ -70,6 +70,7 @@ export async function getAccounts(accessToken) {
 /**
  * ? Docs: https://developers.google.com/analytics/devguides/reporting/data/v1
  * TODO Check if desired custom dimensions exist with getMetadata: https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/getMetadata
+ * TODO send error message if custom dimensions were not found
  *
  * @param {String} accessToken
  * @param {String} propertyName
@@ -91,7 +92,6 @@ export async function getReport(accessToken, propertyName) {
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#dimensions
       // other helpful dimensions: deviceModel, mobileDeviceModel
       dimensions: [
-        {name: 'eventName'},
         {
           name: 'URL',
           dimensionExpression: {
@@ -101,11 +101,21 @@ export async function getReport(accessToken, propertyName) {
             },
           },
         },
-        {name: 'operatingSystem'},
-        {name: 'browser'},
+        // {
+        //   name: 'OS_Browser',
+        //   dimensionExpression: {
+        //     concatenate: {
+        //       dimensionNames: ['operatingSystem', 'browser'],
+        //       delimiter: '/',
+        //     },
+        //   },
+        // },
         {name: 'deviceCategory'},
         {name: 'screenResolution'},
-        // TODO {name: 'customEvent:debug_target'},
+        {name: 'mobileDeviceModel'},
+        {name: 'customEvent:debug_target'},
+        // {name: 'customEvent:debug_type'},
+        // {name: 'customEvent:debug_time'},
       ],
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics
       metrics: [

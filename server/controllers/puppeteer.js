@@ -38,7 +38,7 @@ async function tracing(config) {
     // start tracing
     await page.tracing.start({path: 'traces/' + traceFileName});
     // Navigate the page to a URL
-    await page.goto(pageUrl);
+    await page.goto('https://' + pageUrl);
     await page.tracing.stop();
     await browser.close();
     return traceFileName;
