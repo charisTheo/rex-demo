@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import '../css/global.css';
 import '../css/theme.css';
 import '@material/web/button/filled-tonal-button.js';
@@ -7,9 +8,43 @@ import '@material/web/list/list-item';
 import '@material/web/progress/circular-progress';
 import { hidePageLoadingIndicator, hideReportLoadingIndicator, showPageLoadingIndicator, showReportLoadingIndicator } from './utils';
 import { getGoogleAuthUrl, fetchAnalyticsAccounts, fetchAnalyticsReport, formatRawReportObject, getTraceFromReplay } from './api';
+import Viewer from './devtools/timeline_viewer';
+
+let viewer;
+
+async function initDevTools() {
+  if (typeof Runtime === 'undefined' ) {
+    return setTimeout(initDevTools, 200);
+  }
+  if (!viewer) {
+    viewer = new Viewer();
+    await Runtime.startApplication('timelineviewer_app');
+    viewer.makeDevToolsVisible(true);
+    const parsedURL = new URL(location.href);
+    if (!parsedURL.searchParams.get('loadTimelineFromURL')) {
+      // hide devtools
+      setTimeout(() => viewer.makeDevToolsVisible(false), 1000);
+    }
+  }
+}
+
+// ? Source: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/
+async function showPerfDevTools(traceFilename) {
+  viewer.makeDevToolsVisible(true);
+
+  const url = `/trace/${traceFilename}`;
+  const parsedURL = new URL(location.href);
+  parsedURL.searchParams.delete('loadTimelineFromURL');
+  // this is weird because we don't want url encoding of the URL
+  parsedURL.searchParams.append('loadTimelineFromURL', 'REPLACEME');
+  location.href = parsedURL.toString().replace('REPLACEME', url);
+
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (window.location.search.indexOf('auth=1') >= 0) {
+    initDevTools()
+
     document.querySelector('#google-analytics-wrapper').removeAttribute('hidden');
     const accounts = await fetchAnalyticsAccounts();
     renderAnalyticsAccounts(accounts);
@@ -214,15 +249,7 @@ async function handleRowClick(e, rows) {
     });
     hidePageLoadingIndicator();
     if (traceFilename) {
-      // window.open(`/trace/${traceFilename}`, '_blank');
-
-      // TODO Show Perf timeline: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/dev_tools.js#L33
-      if (typeof Runtime !== 'undefined' ) {
-        localStorage.setItem('uiTheme', JSON.stringify('dark'))
-        // eslint-disable-next-line no-undef
-        Runtime.startApplication('timelineviewer_app');
-      }
-
+      showPerfDevTools(traceFilename)
     } else {
       // TODO show error
     }

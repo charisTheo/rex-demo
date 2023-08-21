@@ -121,6 +121,14 @@ module.exports = () => {
             {
               copy: [
                 {
+                  source: getDirectory('src/Images/**'),
+                  destination: 'dist/Images/'
+                }
+              ]
+            },
+            {
+              copy: [
+                {
                   source: partytown.libDirPath(),
                   destination: 'dist/~partytown'
                 }
