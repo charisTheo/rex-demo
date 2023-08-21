@@ -114,7 +114,7 @@ export async function getReport(accessToken, propertyName) {
         {name: 'screenResolution'},
         {name: 'mobileDeviceModel'},
         {name: 'customEvent:debug_target'},
-        // {name: 'customEvent:debug_type'},
+        {name: 'customEvent:debug_type'},
         // {name: 'customEvent:debug_time'},
       ],
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics
