@@ -84,8 +84,15 @@
 
     </main>
     
-    <footer></footer>
-
+    <!-- TODO style form -->
+    <md-dialog id='replay-options-dialog' hidden>
+      <div slot="headline">Replay options</div>
+      <form slot="content" id="replay-options-form" method="dialog"></form>
+      <div slot="actions">
+        <md-text-button form="replay-options-form">Cancel</md-text-button>
+        <md-filled-button form="replay-options-form">Replay</md-filled-button>
+      </div>
+    </md-dialog>
 
     <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/shell.js" id="devtoolsscript"></script>
     <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/devtools_app.js"></script>

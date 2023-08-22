@@ -1,13 +1,28 @@
 /* eslint-disable no-undef */
 import '../css/global.css';
 import '../css/theme.css';
-import '@material/web/button/filled-tonal-button.js';
+import '@material/web/button/filled-tonal-button';
+import '@material/web/button/filled-button';
+import '@material/web/button/text-button';
 import '@material/web/icon/icon';
 import '@material/web/list/list';
 import '@material/web/list/list-item';
+import '@material/web/textfield/filled-text-field.js';
 import '@material/web/progress/circular-progress';
-import { hidePageLoadingIndicator, hideReportLoadingIndicator, showPageLoadingIndicator, showReportLoadingIndicator } from './utils';
-import { getGoogleAuthUrl, fetchAnalyticsAccounts, fetchAnalyticsReport, formatRawReportObject, getTraceFromReplay } from './api';
+import '@material/web/dialog/dialog';
+import {
+  hidePageLoadingIndicator,
+  hideReportLoadingIndicator,
+  showPageLoadingIndicator,
+  showReportLoadingIndicator
+} from './utils';
+import {
+  getGoogleAuthUrl,
+  fetchAnalyticsAccounts,
+  fetchAnalyticsReport,
+  formatRawReportObject,
+  getTraceFromReplay
+} from './api';
 import Viewer from './devtools/timeline_viewer';
 
 let viewer;
@@ -43,7 +58,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.location.search.indexOf('auth=1') >= 0) {
     initDevTools()
 
-    document.querySelector('#google-analytics-wrapper').removeAttribute('hidden');
+    document
+      .querySelector('#replay-options-form')
+      .addEventListener('submit', onOptionsDialogSubmit);
+    document
+      .querySelector('#google-analytics-wrapper')
+      .removeAttribute('hidden');
+
     const accounts = await fetchAnalyticsAccounts();
     renderAnalyticsAccounts(accounts);
     await new Promise(resolve => setTimeout(resolve, 0));
@@ -232,25 +253,80 @@ async function handleRowClick(e, rows) {
       screenResolution,
       deviceModel,
       debugTarget,
-      // debugType,
+      debugType,
     ] = row.dimensionValues;
 
-    // TODO open modal with options configuration: https://material-web.dev/components/dialog/
+    // open modal with options configuration: https://material-web.dev/components/dialog/
+    const optionsDialog = document.querySelector('#replay-options-dialog');
+    // pass default configuration to dialog
+    // TODO create an array of objects and create HTML in a loop
+    optionsDialog.querySelector('form').innerHTML = `
+      <md-filled-text-field value='${url}' type='url' name='url'></md-filled-text-field>
 
-    showPageLoadingIndicator();
-    const traceFilename = await getTraceFromReplay({
-      url,
-      deviceCategory,
-      screenResolution,
-      deviceModel,
-      debugTarget
-    });
-    if (traceFilename) {
-      // This will reload the page
-      showPerfDevTools(traceFilename);
-    } else {
-      // TODO show error
-      hidePageLoadingIndicator();
-    }
+      <md-filled-text-field
+        value='${deviceCategory}'
+        label='Device category'
+        type='text'
+        name='deviceCategory'
+      ></md-filled-text-field>
+
+      <md-filled-text-field
+        value='${screenResolution}'
+        label='Screen Resolution'
+        type='text'
+        name='screenResolution'
+      ></md-filled-text-field>
+
+      <md-filled-text-field
+        value='${deviceModel}'
+        label='Device model'
+        type='text'
+        name='deviceModel'
+      ></md-filled-text-field>
+
+      <md-filled-text-field
+        value='${debugTarget}'
+        label='Replay event target'
+        type='text'
+        name='debugTarget'
+      ></md-filled-text-field>
+
+      <md-filled-text-field
+        value='${debugType}'
+        label='Replay event type'
+        type='text'
+        name='debugType'
+      ></md-filled-text-field>
+    `;
+    optionsDialog.open = true;
+  }
+}
+
+async function onOptionsDialogSubmit(e) {
+  // TODO get e.submitter to determine form action
+  showPageLoadingIndicator();
+
+  // get options from form values
+  const url = e.target.elements['url'].value;
+  const deviceCategory = e.target.elements['deviceCategory'].value;
+  const screenResolution = e.target.elements['screenResolution'].value;
+  const deviceModel = e.target.elements['deviceModel'].value;
+  const debugTarget = e.target.elements['debugTarget'].value;
+  const debugType = e.target.elements['debugType'].value;
+
+  const traceFilename = await getTraceFromReplay({
+    url,
+    deviceCategory,
+    screenResolution,
+    deviceModel,
+    debugTarget,
+    debugType
+  });
+  if (traceFilename) {
+    // This will reload the page
+    showPerfDevTools(traceFilename);
+  } else {
+    // TODO show error
+    hidePageLoadingIndicator();
   }
 }
