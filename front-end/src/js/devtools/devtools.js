@@ -152,8 +152,8 @@ class DevTools {
           aria-label="Toggle devtools performance timeline"
           toggle
         >
-          <md-icon>expand_less</md-icon>
-          <md-icon slot="selectedIcon">expand_more</md-icon>
+          <md-icon>expand_more</md-icon>
+          <md-icon slot="selectedIcon">expand_less</md-icon>
         </md-icon-button>
       `;
       document.querySelector('.root-view').appendChild(expandButtonWrapper);
