@@ -45,8 +45,8 @@
   --md-sys-color-scrim: #000000;
   /* END Material Baseline colors */
 
-  --md-list-container-color: var(--md-sys-color-surface-container-high);
-  --md-list-item-list-item-container-color: var(--md-sys-color-surface-container-high);
+  --md-list-container-color: var(--md-sys-color-surface-container);
+  --md-list-item-list-item-container-color: var(--md-sys-color-surface-container);
   --loading-indicator-background: rgb(255 255 255 / 0.5);
   --row-highlight-background: rgb(0 0 0 / 0.1);
 }

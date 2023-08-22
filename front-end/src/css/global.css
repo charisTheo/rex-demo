@@ -1,4 +1,4 @@
-:root {
+:root, body, html {
   /* devtools overrides */
   overflow: initial !important;
 }
@@ -134,17 +134,19 @@ tr:hover > td > md-icon {
   top: initial;
   transition: transform 0.5s;
   overflow: initial;
+  background-color: var(--md-sys-color-background) !important;
+  color: var(--md-sys-color-on-background) !important;
+  position: fixed !important;
 }
 body.hide-devtools .vbox.root-view {
   transform: translateY(calc(100% - 5px));
   transform-origin: bottom;
 }
+/* body:not(.hide-devtools) {
+  padding-bottom: 50vh;
+} */
 .root-view .tabbed-pane > .view-container .timeline-toolbar-container {
   display: none;
-}
-.vbox {
-  background-color: var(--md-sys-color-background) !important;
-  color: var(--md-sys-color-on-background) !important;
 }
 #devtools-expand-button-wrapper {
   background-color: var(--md-sys-color-surface-container-highest);

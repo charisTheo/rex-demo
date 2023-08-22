@@ -18,27 +18,25 @@ async function initDevTools() {
   }
   if (!viewer) {
     viewer = new Viewer();
-    await Runtime.startApplication('timelineviewer_app');
-    viewer.makeDevToolsVisible(true);
     const parsedURL = new URL(location.href);
     if (!parsedURL.searchParams.get('loadTimelineFromURL')) {
       // hide devtools
       setTimeout(() => viewer.makeDevToolsVisible(false), 1000);
+    } else {
+      await Runtime.startApplication('timelineviewer_app');
+      viewer.makeDevToolsVisible(true);
     }
   }
 }
 
 // ? Source: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/
 async function showPerfDevTools(traceFilename) {
-  viewer.makeDevToolsVisible(true);
-
   const url = `/trace/${traceFilename}`;
   const parsedURL = new URL(location.href);
   parsedURL.searchParams.delete('loadTimelineFromURL');
   // this is weird because we don't want url encoding of the URL
   parsedURL.searchParams.append('loadTimelineFromURL', 'REPLACEME');
   location.href = parsedURL.toString().replace('REPLACEME', url);
-
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -237,7 +235,7 @@ async function handleRowClick(e, rows) {
       // debugType,
     ] = row.dimensionValues;
 
-    // TODO open modal with options configuration
+    // TODO open modal with options configuration: https://material-web.dev/components/dialog/
 
     showPageLoadingIndicator();
     const traceFilename = await getTraceFromReplay({
@@ -247,11 +245,12 @@ async function handleRowClick(e, rows) {
       deviceModel,
       debugTarget
     });
-    hidePageLoadingIndicator();
     if (traceFilename) {
-      showPerfDevTools(traceFilename)
+      // This will reload the page
+      showPerfDevTools(traceFilename);
     } else {
       // TODO show error
+      hidePageLoadingIndicator();
     }
   }
 }
