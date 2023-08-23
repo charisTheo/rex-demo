@@ -1,3 +1,5 @@
+import { showSnackbar } from "./utils";
+
 function handleAuthorizationError() {
   if (window.confirm('Your authentication has expired. Press OK to reload the page and log in again.')) {
     location.href = '/'
@@ -5,7 +7,7 @@ function handleAuthorizationError() {
 }
 
 function showApiFetchError() {
-  alert('There was an error with your request')
+  showSnackbar({ message: 'There was an error with your request', type: 'error' });
 }
 
 /**

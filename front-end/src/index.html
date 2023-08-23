@@ -84,15 +84,31 @@
 
     </main>
     
-    <!-- TODO style form -->
     <md-dialog id='replay-options-dialog' hidden>
       <div slot="headline">Replay options</div>
+      
       <form slot="content" id="replay-options-form" method="dialog"></form>
+
       <div slot="actions">
-        <md-text-button form="replay-options-form">Cancel</md-text-button>
-        <md-filled-button form="replay-options-form">Replay</md-filled-button>
+        <md-text-button data-action='cancel' form="replay-options-form">
+          Cancel
+          <md-icon slot='icon'>close</md-icon>
+        </md-text-button>
+
+        <md-filled-button data-action='submit' form="replay-options-form">
+          Replay
+          <md-icon slot='icon'>replay</md-icon>
+        </md-filled-button>
       </div>
     </md-dialog>
+
+    <div id="snackbar" class='hide'>
+      <md-elevation></md-elevation>
+      <span id='snackbar-message'></span>
+      <md-icon-button id='snackbar-close-button' onclick='hideSnackbar()'>
+        <md-icon>close</md-icon>
+      </md-icon-button>
+    </div>
 
     <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/shell.js" id="devtoolsscript"></script>
     <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/devtools_app.js"></script>
