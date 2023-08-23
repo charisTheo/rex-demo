@@ -57,8 +57,8 @@ async function tracing(config) {
  * Given a page Url this function will run tracing experience
  * then open the result in a tracing view
  */
-async function replayExperience(pageUrl, emulateCPUThrottling, slow3G, viewportConfig) {
-  const traceResultJson = await tracing({pageUrl, emulateCPUThrottling, slow3G, viewportConfig});
+async function replayExperience(pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel) {
+  const traceResultJson = await tracing({pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel});
   return traceResultJson || null;
 }
 
