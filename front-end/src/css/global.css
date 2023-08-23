@@ -163,3 +163,55 @@ body.hide-devtools .vbox.root-view {
   margin-top: -10px;
   width: 60px;
 }
+
+#replay-options-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3em;
+  flex-wrap: wrap;
+}
+
+#snackbar {
+  transition-property: all;
+  transition-duration: 250ms;
+  transition-timing-function: ease-in-out;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  
+  --md-elevation-level: 2;
+  --bottom: 2em;
+
+  bottom: var(--bottom);
+  left: var(--bottom);
+  position: fixed;
+  z-index: 3;
+
+  color: var(--md-sys-color-on-background);
+  background-color: var(--md-sys-color-surface-container-highest);
+}
+#snackbar,
+#snackbar > md-elevation {
+  border-radius: 16px;
+}
+#snackbar:hover {
+  --md-elevation-level: 4;
+}
+#snackbar.hide {
+  transform: translateY(calc(100% + var(--bottom)));
+}
+#snackbar.success {
+  --md-elevation-shadow-color: var(--md-sys-color-success);
+  --md-icon-button-icon-color: var(--md-sys-color-on-success-container);
+  color: var(--md-sys-color-on-success-container);
+  background-color: var(--md-sys-color-success-container);
+}
+#snackbar.error {
+  --md-elevation-shadow-color: var(--md-sys-color-error);
+  --md-icon-button-icon-color: var(--md-sys-color-on-error-container);
+  color: var(--md-sys-color-on-error-container);
+  background-color: var(--md-sys-color-error-container);
+}

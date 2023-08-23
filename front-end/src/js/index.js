@@ -13,8 +13,10 @@ import '@material/web/dialog/dialog';
 import {
   hidePageLoadingIndicator,
   hideReportLoadingIndicator,
+  hideSnackbar,
   showPageLoadingIndicator,
-  showReportLoadingIndicator
+  showReportLoadingIndicator,
+  showSnackbar
 } from './utils';
 import {
   getGoogleAuthUrl,
@@ -24,37 +26,12 @@ import {
   getTraceFromReplay
 } from './api';
 import Viewer from './devtools/timeline_viewer';
-
 let viewer;
 
-async function initDevTools() {
-  if (typeof Runtime === 'undefined' ) {
-    return setTimeout(initDevTools, 200);
-  }
-  if (!viewer) {
-    viewer = new Viewer();
-    const parsedURL = new URL(location.href);
-    if (!parsedURL.searchParams.get('loadTimelineFromURL')) {
-      // hide devtools
-      setTimeout(() => viewer.makeDevToolsVisible(false), 1000);
-    } else {
-      await Runtime.startApplication('timelineviewer_app');
-      viewer.makeDevToolsVisible(true);
-    }
-  }
-}
-
-// ? Source: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/
-async function showPerfDevTools(traceFilename) {
-  const url = `/trace/${traceFilename}`;
-  const parsedURL = new URL(location.href);
-  parsedURL.searchParams.delete('loadTimelineFromURL');
-  // this is weird because we don't want url encoding of the URL
-  parsedURL.searchParams.append('loadTimelineFromURL', 'REPLACEME');
-  location.href = parsedURL.toString().replace('REPLACEME', url);
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
+  window.showSnackbar = showSnackbar;
+  window.hideSnackbar = hideSnackbar;
+  
   if (window.location.search.indexOf('auth=1') >= 0) {
     initDevTools()
 
@@ -255,78 +232,103 @@ async function handleRowClick(e, rows) {
       debugTarget,
       debugType,
     ] = row.dimensionValues;
+    const fieldsArr = [
+      {name: 'url', value: url, label: 'URL', type: 'url', hidden: true},
+      {name: 'deviceCategory', value: deviceCategory, label: 'Device category', type: 'text', hidden: false},
+      {name: 'screenResolution', value: screenResolution, label: 'Screen Resolution', type: 'text', hidden: false},
+      {name: 'deviceModel', value: deviceModel, label: 'Device Model', type: 'text', hidden: false},
+      {name: 'debugType', value: debugType, label: 'Replay event type', type: 'text', hidden: false},
+      {name: 'debugTarget', value: debugTarget, label: 'Replay event target', type: 'text', hidden: false},
+    ];
 
     // open modal with options configuration: https://material-web.dev/components/dialog/
     const optionsDialog = document.querySelector('#replay-options-dialog');
-    // pass default configuration to dialog
-    // TODO create an array of objects and create HTML in a loop
-    optionsDialog.querySelector('form').innerHTML = `
-      <md-filled-text-field value='${url}' type='url' name='url'></md-filled-text-field>
+    
+    // Create input fields and pass default configuration to dialog
+    optionsDialog.querySelector('form').innerHTML = fieldsArr.map(
+      ({name, value, label, type, hidden}) => `
+        <md-filled-text-field
+          value='${value}'
+          label='${label}'
+          type='${type}'
+          name='${name}'
+          ${hidden ? 'style="display: none" aria-hidden="true"' : ''}
+        ></md-filled-text-field>
+      `).join("");
 
-      <md-filled-text-field
-        value='${deviceCategory}'
-        label='Device category'
-        type='text'
-        name='deviceCategory'
-      ></md-filled-text-field>
-
-      <md-filled-text-field
-        value='${screenResolution}'
-        label='Screen Resolution'
-        type='text'
-        name='screenResolution'
-      ></md-filled-text-field>
-
-      <md-filled-text-field
-        value='${deviceModel}'
-        label='Device model'
-        type='text'
-        name='deviceModel'
-      ></md-filled-text-field>
-
-      <md-filled-text-field
-        value='${debugTarget}'
-        label='Replay event target'
-        type='text'
-        name='debugTarget'
-      ></md-filled-text-field>
-
-      <md-filled-text-field
-        value='${debugType}'
-        label='Replay event type'
-        type='text'
-        name='debugType'
-      ></md-filled-text-field>
-    `;
     optionsDialog.open = true;
   }
 }
 
 async function onOptionsDialogSubmit(e) {
-  // TODO get e.submitter to determine form action
+  if (e.submitter?.dataset?.action === 'cancel') {
+    return;
+  }
+
   showPageLoadingIndicator();
 
-  // get options from form values
-  const url = e.target.elements['url'].value;
-  const deviceCategory = e.target.elements['deviceCategory'].value;
-  const screenResolution = e.target.elements['screenResolution'].value;
-  const deviceModel = e.target.elements['deviceModel'].value;
-  const debugTarget = e.target.elements['debugTarget'].value;
-  const debugType = e.target.elements['debugType'].value;
+  try {
+    // get options from form values
+    const url = e.target.elements['url'].value;
+    const deviceCategory = e.target.elements['deviceCategory'].value;
+    const screenResolution = e.target.elements['screenResolution'].value;
+    const deviceModel = e.target.elements['deviceModel'].value;
+    const debugTarget = e.target.elements['debugTarget'].value;
+    const debugType = e.target.elements['debugType'].value;
 
-  const traceFilename = await getTraceFromReplay({
-    url,
-    deviceCategory,
-    screenResolution,
-    deviceModel,
-    debugTarget,
-    debugType
-  });
-  if (traceFilename) {
-    // This will reload the page
-    showPerfDevTools(traceFilename);
-  } else {
-    // TODO show error
-    hidePageLoadingIndicator();
+    const traceFilename = await getTraceFromReplay({
+      url,
+      deviceCategory,
+      screenResolution,
+      deviceModel,
+      debugTarget,
+      debugType
+    });
+
+    if (traceFilename) {
+      // This will reload the page and Devtools will load trace from file automatically
+      showPerfDevTools(traceFilename);
+    } else {
+      throw new Error('No trace filename was returned from the API');
+    }
+  } catch (err) {
+    showSnackbar({
+      message: 'There was an error while replaying this experience :/',
+      type: 'error'
+    });
   }
+
+  hidePageLoadingIndicator();
+}
+
+async function initDevTools() {
+  if (typeof Runtime === 'undefined' ) {
+    return setTimeout(initDevTools, 200);
+  }
+  if (!viewer) {
+    viewer = new Viewer();
+    const parsedURL = new URL(location.href);
+    if (!parsedURL.searchParams.get('loadTimelineFromURL')) {
+      // hide devtools
+      setTimeout(() => viewer.makeDevToolsVisible(false), 1000);
+    } else {
+      await Runtime.startApplication('timelineviewer_app');
+      viewer.makeDevToolsVisible(true);
+    }
+  }
+}
+
+/**
+ * ? Source: https://github.com/ChromeDevTools/timeline-viewer/blob/68e858d2131f5e76a6670a8b48a5730bcfe140ba/docs/
+ * Reloads the page with a `loadTimelineFromURL` URL parameter
+ * which Devtools uses to load the trace from file during page load
+ * @param {String} traceFilename 
+ */
+async function showPerfDevTools(traceFilename) {
+  const url = `/trace/${traceFilename}`;
+  const parsedURL = new URL(location.href);
+  parsedURL.searchParams.delete('loadTimelineFromURL');
+  // this is weird because we don't want url encoding of the URL
+  parsedURL.searchParams.append('loadTimelineFromURL', 'REPLACEME');
+  location.href = parsedURL.toString().replace('REPLACEME', url);
 }
