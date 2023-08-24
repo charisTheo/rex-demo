@@ -170,6 +170,7 @@ body.hide-devtools .vbox.root-view {
   align-items: center;
   gap: 3em;
   flex-wrap: wrap;
+  padding: 2em 0;
 }
 
 #snackbar {
