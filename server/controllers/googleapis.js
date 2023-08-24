@@ -2,6 +2,7 @@ import {google} from 'googleapis';
 import keys from './oauth-client-secret.json' assert { type: 'json' };
 import {getReportDateFilterString} from '../utils/date.js';
 
+const URL_DIMENSION_DELIMITER = '<%REMOVE_ME%>';
 const analyticsData = google.analyticsdata('v1beta');
 const analyticsAdmin = google.analyticsadmin('v1beta');
 
@@ -97,7 +98,7 @@ export async function getReport(accessToken, propertyName) {
           dimensionExpression: {
             concatenate: {
               dimensionNames: ['hostname', 'pagePath'],
-              delimiter: ' ',
+              delimiter: URL_DIMENSION_DELIMITER,
             },
           },
         },
@@ -115,6 +116,7 @@ export async function getReport(accessToken, propertyName) {
         {name: 'mobileDeviceModel'},
         {name: 'customEvent:debug_target'},
         {name: 'customEvent:debug_type'},
+        {name: 'customEvent:debug_target_coordinates'},
         // {name: 'customEvent:debug_time'},
       ],
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics
@@ -140,7 +142,7 @@ export async function getReport(accessToken, propertyName) {
       ...r,
       dimensionValues: r.dimensionValues.map((d) => ({
         ...d,
-        value: d.value.split(' ').join(''),
+        value: d.value.split(URL_DIMENSION_DELIMITER).join(''),
       })),
     }));
   }
