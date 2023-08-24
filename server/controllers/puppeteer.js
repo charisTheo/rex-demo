@@ -3,8 +3,26 @@ import log from '../utils/log.js';
 const {randomUUID} = await import('node:crypto');
 
 /**
+ * @typedef {ViewportConfig}
+ * @property {Number} width
+ * @property {Number} height
+ */
+
+/**
+ * @typedef {ReplayConfig}
+ * @property {URL} pageUrl
+ * @property {Boolean} emulateCPUThrottling
+ * @property {Boolean} slow3G
+ * @property {ViewportConfig} viewportConfig
+ * @property {String} debugType
+ * @property {String} debugTarget
+ * @property {String} deviceCategory
+ * @property {String} deviceModel
+ */
+
+/**
  *
- * @param {*} config
+ * @param {ReplayConfig} config
  * @return {String|undefined}
  * Given a config file this function will perform a simple tracing based on the config
  */
@@ -15,9 +33,9 @@ async function tracing(config) {
     slow3G,
     viewportConfig,
     debugType,
-    debugTarget, 
-    deviceCategory, 
-    deviceModel
+    debugTarget,
+    deviceCategory,
+    deviceModel,
   } = (config || {});
 
   const traceFileName = `${randomUUID()}.json`;
@@ -25,10 +43,10 @@ async function tracing(config) {
   const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
   // set up the device config
-  if(deviceCategory === 'mobile' || deviceCategory === 'tablet') {
-    // identify the device model and then setup the emulation 
+  if (deviceCategory === 'mobile' || deviceCategory === 'tablet') {
+    // identify the device model and then setup the emulation
     const _devicemodel = KnownDevices[deviceModel];
-    if(_devicemodel) {
+    if (_devicemodel) {
       await page.emulate(_devicemodel);
     }
   }
@@ -53,21 +71,21 @@ async function tracing(config) {
     await page.goto('https://' + pageUrl);
     // target search
     const htmlElement = await page.$(debugTarget);
-    switch(debugType) {
+    switch (debugType) {
       case 'keydown': {
-        if(htmlElement) {
+        if (htmlElement) {
           await htmlElement.type('World', {delay: 100});
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
         }
         break;
       }
       case 'pointerdown': {
-        break;  
+        break;
       }
-      case 'click' :{
+      case 'click': {
         // find the selector element
         // perform a click and then await the time of a minimum INP threshold which is 200ms
-        if(htmlElement) {
+        if (htmlElement) {
           await page.click(debugTarget);
         }
         break;
@@ -78,17 +96,21 @@ async function tracing(config) {
     return traceFileName;
   } catch (error) {
     log(error);
-    console.log(error)
+    console.log(error);
     return undefined;
   }
 }
 
 /**
  *
- * @param {*} pageUrl
+ * @param {URL} pageUrl
  * @param {Boolean} emulateCPUThrottling
  * @param {Boolean} slow3G
  * @param {Object} viewportConfig
+ * @param {String} debugType
+ * @param {String} debugTarget
+ * @param {String} deviceCategory
+ * @param {String} deviceModel
  * Given a page Url this function will run tracing experience
  * then open the result in a tracing view
  */
