@@ -3,7 +3,7 @@ import {replayExperience} from '../controllers/puppeteer.js';
 import auth from '../middleware/auth.js';
 const router = new express.Router();
 
-router.post('/', auth, async (req, res) => {
+router.post('/', /*auth,*/ async (req, res) => {
   const {
     url, 
     emulateCPUThrottling, 
