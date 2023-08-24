@@ -231,14 +231,16 @@ async function handleRowClick(e, rows) {
       deviceModel,
       debugTarget,
       debugType,
+      debugCoordinates,
     ] = row.dimensionValues;
     const fieldsArr = [
       {name: 'url', value: url, label: 'URL', type: 'url', hidden: true},
       {name: 'deviceCategory', value: deviceCategory, label: 'Device category', type: 'text', hidden: false},
       {name: 'screenResolution', value: screenResolution, label: 'Screen Resolution', type: 'text', hidden: false},
       {name: 'deviceModel', value: deviceModel, label: 'Device Model', type: 'text', hidden: false},
-      {name: 'debugType', value: debugType, label: 'Replay event type', type: 'text', hidden: false},
-      {name: 'debugTarget', value: debugTarget, label: 'Replay event target', type: 'text', hidden: false},
+      {name: 'debugType', value: debugType, label: 'Event type', type: 'text', hidden: false},
+      {name: 'debugTarget', value: debugTarget, label: 'Event target', type: 'text', hidden: false},
+      {name: 'debugCoordinates', value: debugCoordinates, label: 'Event coordinates', type: 'text', hidden: false},
     ];
 
     // open modal with options configuration: https://material-web.dev/components/dialog/
@@ -275,6 +277,7 @@ async function onOptionsDialogSubmit(e) {
     const deviceModel = e.target.elements['deviceModel'].value;
     const debugTarget = e.target.elements['debugTarget'].value;
     const debugType = e.target.elements['debugType'].value;
+    const debugCoordinates = e.target.elements['debugCoordinates'].value;
 
     const traceFilename = await getTraceFromReplay({
       url,
@@ -282,7 +285,8 @@ async function onOptionsDialogSubmit(e) {
       screenResolution,
       deviceModel,
       debugTarget,
-      debugType
+      debugType,
+      debugCoordinates,
     });
 
     if (traceFilename) {

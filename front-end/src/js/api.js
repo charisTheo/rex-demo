@@ -91,6 +91,7 @@ function buildViewportObject(screenResolution = '') {
  * @property {String} url
  * @property {String} debugType
  * @property {String} debugTarget
+ * @property {String} debugCoordinates
  * @property {String} deviceCategory
  * @property {String} screenResolution
  * @property {String} deviceModel
@@ -107,6 +108,7 @@ export async function getTraceFromReplay(options) {
     url,
     debugType,
     debugTarget,
+    debugCoordinates,
     deviceCategory,
     screenResolution,
     deviceModel,
@@ -118,6 +120,7 @@ export async function getTraceFromReplay(options) {
     url,
     debugType,
     debugTarget,
+    debugCoordinates,
     deviceCategory,
     viewport: buildViewportObject(screenResolution),
     deviceModel,
@@ -154,7 +157,8 @@ export const DIMENSION_NAMES_MAP = {
   'mobileDeviceModel': 'Device model',
   'customEvent:debug_target': 'Target element',
   'customEvent:debug_type': 'User input type',
-  'customEvent:debug_time': 'User input timing'
+  'customEvent:debug_time': 'User input timing',
+  'customEvent:debug_target_coordinates': 'Target coordinates',
 }
 export const METRICS_NAMES_MAP = {
   'eventValue': 'INP (ms)',
