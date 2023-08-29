@@ -42,6 +42,10 @@ header h1 {
 .loading-indicator[hidden] {
   display: none;
 }
+md-circular-progress {
+  width: 40px;
+  height: 40px;
+}
 
 #login-with-google-button-wrapper {
   margin: 0 auto 3rem;
