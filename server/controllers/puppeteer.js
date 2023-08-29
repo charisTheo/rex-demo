@@ -1,10 +1,11 @@
 import puppeteer, {PredefinedNetworkConditions, KnownDevices} from 'puppeteer';
 import log from '../utils/log.js';
 const {randomUUID} = await import('node:crypto');
-
+import loaf from './loaf.js';
 /**
  *
- * @param {*} config
+ * @param {object} config
+ * @property {string} config.debugType
  * @return {String|undefined}
  * Given a config file this function will perform a simple tracing based on the config
  */
@@ -15,20 +16,25 @@ async function tracing(config) {
     slow3G,
     viewportConfig,
     debugType,
-    debugTarget, 
-    deviceCategory, 
-    deviceModel
+    debugTarget,
+    deviceCategory,
+    deviceModel,
   } = (config || {});
 
   const traceFileName = `${randomUUID()}.json`;
-  // Launch the browser and open a new blank page
-  const browser = await puppeteer.launch({headless: 'new'});
+  // Launch the browser and open a new blank page on chrome beta with loaf Enabled
+  const browser = await puppeteer.launch({headless: 'new',
+    channel: 'chrome-beta',
+    args: ['--enable-features=LongAnimationFrameTiming'],
+  });
   const page = await browser.newPage();
+  //  enabling loaf on devtool
+  await page.evaluateOnNewDocument(loaf);
   // set up the device config
-  if(deviceCategory === 'mobile' || deviceCategory === 'tablet') {
-    // identify the device model and then setup the emulation 
+  if (deviceCategory === 'mobile' || deviceCategory === 'tablet') {
+    // identify the device model and then setup the emulation
     const _devicemodel = KnownDevices[deviceModel];
-    if(_devicemodel) {
+    if (_devicemodel) {
       await page.emulate(_devicemodel);
     }
   }
@@ -42,7 +48,7 @@ async function tracing(config) {
   }
   // set CPU condition
   if (emulateCPUThrottling) {
-    await page.emulateCPUThrottling(4);
+    await page.emulateCPUThrottling(6);
   }
   try {
     // Configure the navigation timeout
@@ -53,32 +59,31 @@ async function tracing(config) {
     await page.goto('https://' + pageUrl);
     // target search
     const htmlElement = await page.$(debugTarget);
-    switch(debugType) {
+    switch (debugType) {
       case 'keydown': {
-        if(htmlElement) {
-          await htmlElement.type('World', {delay: 100});
-          await new Promise(r => setTimeout(r, 200));
+        if (htmlElement) {
+          await htmlElement.type('Hello World', {delay: 100});
+          await page.keyboard.type('Enter');
+          await new Promise((r) => setTimeout(r, 200));
         }
         break;
       }
-      case 'pointerdown': {
-        break;  
-      }
-      case 'click' :{
+      case 'pointerdown':
+      case 'click': {
         // find the selector element
         // perform a click and then await the time of a minimum INP threshold which is 200ms
-        if(htmlElement) {
+        if (htmlElement) {
           await page.click(debugTarget);
         }
         break;
       }
     }
+
     await page.tracing.stop();
     await browser.close();
     return traceFileName;
   } catch (error) {
     log(error);
-    console.log(error)
     return undefined;
   }
 }
@@ -86,11 +91,15 @@ async function tracing(config) {
 /**
  *
  * @param {*} pageUrl
- * @param {Boolean} emulateCPUThrottling
- * @param {Boolean} slow3G
- * @param {Object} viewportConfig
- * Given a page Url this function will run tracing experience
- * then open the result in a tracing view
+ * @param {*} emulateCPUThrottling
+ * @param {*} slow3G
+ * @param {*} viewportConfig
+ * @param {*} debugType
+ * @param {*} debugTarget
+ * @param {*} deviceCategory
+ * @param {*} deviceModel
+ * @return {String|undefined}
+ * Replay
  */
 async function replayExperience(pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel) {
   const traceResultJson = await tracing({pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel});
