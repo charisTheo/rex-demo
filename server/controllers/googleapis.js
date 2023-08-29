@@ -1,5 +1,5 @@
 import {google} from 'googleapis';
-import keys from './oauth-client-secret.json' assert { type: 'json' };
+// import keys from './oauth-client-secret.json' assert { type: 'json' };
 import {getReportDateFilterString} from '../utils/date.js';
 
 const URL_DIMENSION_DELIMITER = '<%REMOVE_ME%>';
@@ -18,9 +18,9 @@ const scopes = [
  */
 export function getAuthorizeUrl() {
   const oauthClient = new google.auth.OAuth2(
-      keys.web.client_id,
-      keys.web.client_secret,
-      keys.web.redirect_uris[0],
+      process.env.client_id,
+      process.env.client_secret,
+      process.env.redirect_uri,
   );
 
   return oauthClient.generateAuthUrl({
@@ -35,9 +35,9 @@ export function getAuthorizeUrl() {
  */
 export async function getAccessTokenFromCode(code) {
   const oauthClient = new google.auth.OAuth2(
-      keys.web.client_id,
-      keys.web.client_secret,
-      keys.web.redirect_uris[0],
+      process.env.client_id,
+      process.env.client_secret,
+      process.env.redirect_uri,
   );
 
   const {tokens} = await oauthClient.getToken({code});
