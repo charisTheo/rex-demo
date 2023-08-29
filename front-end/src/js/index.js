@@ -306,7 +306,7 @@ async function onOptionsDialogSubmit(e) {
 }
 
 async function initDevTools() {
-  if (typeof Runtime === 'undefined' ) {
+  if (typeof Root?.Runtime === 'undefined' ) {
     return setTimeout(initDevTools, 200);
   }
   if (!viewer) {
@@ -316,7 +316,6 @@ async function initDevTools() {
       // hide devtools
       setTimeout(() => viewer.makeDevToolsVisible(false), 1000);
     } else {
-      await Runtime.startApplication('timelineviewer_app');
       viewer.makeDevToolsVisible(true);
     }
   }

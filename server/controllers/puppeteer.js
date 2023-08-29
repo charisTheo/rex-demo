@@ -3,9 +3,22 @@ import log from '../utils/log.js';
 const {randomUUID} = await import('node:crypto');
 import loaf from './loaf.js';
 /**
+ * @typedef {ViewportConfig}
+ * @property {Number} width
+ * @property {Number} height
+ */
+
+/**
  *
- * @param {object} config
- * @property {string} config.debugType
+ * @param {*} config
+ * @property {URL} pageUrl
+ * @property {Boolean} emulateCPUThrottling
+ * @property {Boolean} slow3G
+ * @property {ViewportConfig} viewportConfig
+ * @property {String} debugType
+ * @property {String} debugTarget
+ * @property {String} deviceCategory
+ * @property {String} deviceModel
  * @return {String|undefined}
  * Given a config file this function will perform a simple tracing based on the config
  */
@@ -99,7 +112,8 @@ async function tracing(config) {
  * @param {*} deviceCategory
  * @param {*} deviceModel
  * @return {String|undefined}
- * Replay
+ * Given a page Url this function will run tracing experience
+ * then open the result in a tracing view
  */
 async function replayExperience(pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel) {
   const traceResultJson = await tracing({pageUrl, emulateCPUThrottling, slow3G, viewportConfig, debugType, debugTarget, deviceCategory, deviceModel});

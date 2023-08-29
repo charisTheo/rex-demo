@@ -34,16 +34,15 @@
 
   <body class='hide-devtools'>
     <noscript>Enable JavaScript to enjoy all the features of this app.</noscript>
-    
-    <div class='loading-indicator' hidden>
-      <md-circular-progress indeterminate></md-circular-progress>
-    </div>
 
     <header>
       <h1>REx - Replay Experiences</h1>
     </header>
     
     <main id="main">
+      <div class='loading-indicator' hidden>
+        <md-circular-progress indeterminate></md-circular-progress>
+      </div>
 
       <div id="login-with-google-button-wrapper" hidden>
         <md-filled-tonal-button id='login-with-google-button'>
@@ -109,8 +108,8 @@
         <md-icon>close</md-icon>
       </md-icon-button>
     </div>
-
-    <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/shell.js" id="devtoolsscript"></script>
-    <script src="https://chrome-devtools-frontend.appspot.com/serve_file/@675968a8c657a3bd9c1c2c20c5d2935577bbc5e6/devtools_app.js"></script>
+    
+    <script type='module' src="https://chrome-devtools-frontend.appspot.com/serve_rev/@8b31dc433fc88586317dbbbbd54c531c86558686/entrypoints/shell/shell.js" id="devtoolsscript"></script>
+    <script type='module' src="https://chrome-devtools-frontend.appspot.com/serve_rev/@8b31dc433fc88586317dbbbbd54c531c86558686/entrypoints/js_app/js_app.js"></script>
   </body>
 </html>

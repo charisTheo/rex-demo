@@ -4,4 +4,4 @@
 .vscode/
 **/oauth-client-secret.json
 /front-end/dist/
-/server/traces
+/server/traces/*.json
