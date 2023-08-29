@@ -1,12 +1,12 @@
 export function showPageLoadingIndicator() {
   document
-    .querySelector('body > .loading-indicator')
+    .querySelector('#main > .loading-indicator')
     .removeAttribute('hidden');
 }
 
 export function hidePageLoadingIndicator() {
   document
-    .querySelector('body > .loading-indicator')
+    .querySelector('#main > .loading-indicator')
     .setAttribute('hidden', 'true');
 }
 
