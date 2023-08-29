@@ -8,18 +8,22 @@ class DevTools {
     this.attachMonkeyPatchListeners();
   }
 
+  eventHasCtrlOrMeta(event) {
+    return this.platform === 'mac' ? (event.metaKey && !event.ctrlKey) : (event.ctrlKey && !event.metaKey);
+  }
+
   attachMonkeyPatchListeners() {
     // don't let devtools trap ctrl-r
     document.addEventListener('keydown', event => {
-      if (self.UI && UI.KeyboardShortcut.eventHasCtrlOrMeta(event) && String.fromCharCode(event.which).toLowerCase() === 'r') {
+      if (self.UI && this.eventHasCtrlOrMeta(event) && String.fromCharCode(event.which).toLowerCase() === 'r') {
         event.handled = true;
       }
     });
   }
 
   init() {
-    Runtime.experiments._supportEnabled = true;
-    Runtime.experiments.isEnabled = name => {
+    Root.Runtime.experiments._supportEnabled = true;
+    Root.Runtime.experiments.isEnabled = name => {
       switch (name) {
         case 'timelineV8RuntimeCallStats': return true;
         case 'timelineShowAllEvents': return true;
@@ -49,91 +53,28 @@ class DevTools {
       return ret;
     };
 
-    // don't send application errors to console drawer
-    Common.Console.prototype.addMessage = function(text, level, show) {
-      level = (level && level.replace('warning', 'warn')) || Common.Console.MessageLevel.Info;
-      const message = new Common.Console.Message(text, level, Date.now(), show || false);
-      this._messages.push(message);
-      // this.dispatchEventToListeners(Common.Console.Events.MessageAdded, message);
-      window.console[level](text);
-    };
-
     // Common.settings is created in a window onload listener
     function monkeyPatch() {
       if (!Common.settings) {
         return;
       }
       Common.settings.createSetting('timelineCaptureFilmStrip', true).set(true);
-      this.monkepatchSetWindowPosition();
-      this.monkeyPatchRequestWindowTimes();
-      this.monkeypatchTimelineFeatures();
-      this.monkeyPatchWindowChanged();
+      this.showTimeline();
     }
     
     window.addEventListener('load', monkeyPatch.bind(this));
   }
 
-  monkeypatchTimelineFeatures() {
-    // Instead of gray for unknown events, color them by event name.
-    UI.inspectorView.showPanel('timeline').then(_ => {
-      // Hue: all but red, Saturation: 15-35%, Lightness: 75%, Alpha: opaque
-      const colorGenerator = new Common.Color.Generator({min: 45, max: 325}, {min: 15, max: 35}, 75, 1);
-      const oldEventColor = Timeline.TimelineUIUtils.eventColor;
+  showTimeline() {
+    const plzRepeat = _ => setTimeout(_ => this.showTimeline(), 100);
+    if (typeof UI?.inspectorView === 'undefined') return plzRepeat();
 
-      Timeline.TimelineUIUtils.eventColor = event => {
-        const categoryName = Timeline.TimelineUIUtils.eventStyle(event).category.name;
-        if (categoryName === 'other' || categoryName === 'async') {
-          return colorGenerator.colorForID(event.name);
-        }
-        return oldEventColor.call(Timeline.TimelineUIUtils, event);
-      };
-
-      // Don't force to milliseconds always. Time Dividers can be shown in seconds
-      const formatTime = value => Number.millisToString(value, true);
-      Timeline.TimelineFlameChartNetworkDataProvider.prototype.formatValue = formatTime;
-      Timeline.TimelineFlameChartDataProvider.prototype.formatValue = formatTime;
-      PerfUI.TimelineOverviewCalculator.prototype.formatValue = function(value) {
-        return formatTime(value - this.zeroTime());
-      };
-    });
-  }
-
-  monkepatchSetWindowPosition() {
-    const viewerInstance = this.viewerInstance;
-    const plzRepeat = _ => setTimeout(_ => this.monkepatchSetWindowPosition(), 100);
-    if (typeof PerfUI === 'undefined' || typeof PerfUI.OverviewGrid === 'undefined' ) return plzRepeat();
-
-    PerfUI.OverviewGrid.Window.prototype._setWindowPosition = function(start, end) {
-      const overviewGridWindow = this;
-      SyncView.setWindowPositionPatch.call(overviewGridWindow, start, end, viewerInstance);
-    };
-
-    setTimeout(_ => this.tweakUI(), 250);
-  }
-
-
-  monkeyPatchRequestWindowTimes() {
-    const viewerInstance = this.viewerInstance;
-    const plzRepeat = _ => setTimeout(_ => this.monkeyPatchRequestWindowTimes(), 100);
-    if (typeof PerfUI === 'undefined' || typeof PerfUI.FlameChart === 'undefined' ) return plzRepeat();
-
-    // This is now called PerfUI.FlameChart.windowChanged, but otherwise the same
-    PerfUI.FlameChart.prototype.requestWindowTimes = function(startTime, endTime, animate) {
-      SyncView.requestWindowTimesPatch.call(this, startTime, endTime, animate, viewerInstance);
-    };
-  }
-
-  // there's an infinite loop for some reason and this nips it in the bud
-  monkeyPatchWindowChanged() {
-    const plzRepeat = _ => setTimeout(_ => this.monkeyPatchWindowChanged(), 100);
-    if (typeof PerfUI === 'undefined' || typeof PerfUI.FlameChart === 'undefined' ) return plzRepeat();
-
-    const realWindowChanged = PerfUI.FlameChart.prototype.windowChanged;
-    PerfUI.FlameChart.prototype.windowChanged = function(startTime, endTime, animate) {
-      if (isNaN(startTime)) return;
-      const flameChart = this;
-      realWindowChanged.call(flameChart, startTime, endTime, animate);
-    };
+    UI.inspectorView.showPanel('timeline').then(() => {
+      // Expand Interactions and Main thread groups in Timeline
+      UI.panels.timeline.flameChart.mainFlameChart.expandGroup(3);
+      UI.panels.timeline.flameChart.mainFlameChart.expandGroup(4);
+      setTimeout(this.tweakUI.bind(this), 250);
+    })
   }
 
   tweakUI() {
@@ -149,6 +90,7 @@ class DevTools {
       tabbedPaneHeaderEl.style.fontSize = '120%';
       tabbedPaneHeaderEl.innerHTML = '<span>DevTools Performance Timeline</span>';
 
+      // Add hide/show devtools toggle button
       const expandButtonWrapper = document.createElement('div');
       expandButtonWrapper.id = 'devtools-expand-button-wrapper';
       expandButtonWrapper.innerHTML = `
@@ -168,8 +110,8 @@ class DevTools {
   }
 
   monkeypatchLoadResourcePromise() {
-    this.viewerInstance._orig_loadResourcePromise = Runtime.loadResourcePromise;
-    Runtime.loadResourcePromise = this.viewerInstance.loadResource.bind(this.viewerInstance);
+    this.viewerInstance._orig_loadResourcePromise = Root.Runtime.loadResourcePromise;
+    Root.Runtime.loadResourcePromise = this.viewerInstance.loadResource.bind(this.viewerInstance);
   }
 
   monkeyPatchingHandleDrop() {
