@@ -7,7 +7,8 @@ import '@material/web/button/text-button';
 import '@material/web/icon/icon';
 import '@material/web/list/list';
 import '@material/web/list/list-item';
-import '@material/web/textfield/filled-text-field.js';
+import '@material/web/switch/switch';
+import '@material/web/textfield/filled-text-field';
 import '@material/web/progress/circular-progress';
 import '@material/web/dialog/dialog';
 import {
@@ -256,7 +257,23 @@ async function handleRowClick(e, rows) {
           name='${name}'
           ${hidden ? 'style="display: none" aria-hidden="true"' : ''}
         ></md-filled-text-field>
-      `).join("");
+      `).join("") + `
+        <label>
+          3G Fast network
+          <md-switch
+            name='slow3G'
+            icons
+          ></md-switch>
+        </label>
+        <label>
+          4x CPU slowdown
+          <md-switch 
+            name='emulateCPUThrottling'
+            icons
+            ${deviceCategory === 'mobile' ? 'selected' : ''}
+          ></md-switch>
+        </label>
+      `
 
     optionsDialog.open = true;
   }
@@ -278,6 +295,8 @@ async function onOptionsDialogSubmit(e) {
     const debugTarget = e.target.elements['debugTarget'].value;
     const debugType = e.target.elements['debugType'].value;
     const debugCoordinates = e.target.elements['debugCoordinates'].value;
+    const slow3G = e.target.elements['slow3G'].selected;
+    const emulateCPUThrottling = e.target.elements['emulateCPUThrottling'].selected;
 
     const traceFilename = await getTraceFromReplay({
       url,
@@ -287,6 +306,8 @@ async function onOptionsDialogSubmit(e) {
       debugTarget,
       debugType,
       debugCoordinates,
+      slow3G,
+      emulateCPUThrottling,
     });
 
     if (traceFilename) {

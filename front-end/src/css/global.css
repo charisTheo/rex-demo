@@ -129,6 +129,13 @@ tr:hover > td > md-icon {
   opacity: 1;
 }
 
+label:has(md-switch) {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 40%;
+}
+
 /* Devtools timeline view */
 .vbox.root-view {
   bottom: 0;
@@ -146,9 +153,9 @@ body.hide-devtools .vbox.root-view {
   transform: translateY(calc(100% - 5px));
   transform-origin: bottom;
 }
-/* body:not(.hide-devtools) {
+body:not(.hide-devtools) main {
   padding-bottom: 50vh;
-} */
+}
 .root-view .tabbed-pane > .view-container .timeline-toolbar-container {
   display: none;
 }
