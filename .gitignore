@@ -3,5 +3,4 @@
 **/.env**
 .vscode/
 **/oauth-client-secret.json
-/front-end/dist/
-/server/traces/*.json
+/traces/*.json

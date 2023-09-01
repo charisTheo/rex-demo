@@ -36,8 +36,9 @@ async function tracing(config) {
 
   const traceFileName = `${randomUUID()}.json`;
   // Launch the browser and open a new blank page on chrome beta with loaf Enabled
-  const browser = await puppeteer.launch({headless: 'new',
-    channel: 'chrome-beta',
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    channel: 'chrome-canary',
     args: ['--enable-features=LongAnimationFrameTiming'],
   });
   const page = await browser.newPage();

@@ -1,37 +1,37 @@
 {
-  "name": "rex-demo",
+  "name": "rex-demo-server",
   "version": "1.0.0",
   "description": "",
-  "main": "./node_modules/lerna/index.js",
+  "main": "server.js",
   "type": "module",
   "engines": {
     "node": "16"
   },
   "scripts": {
-    "init": "npm i && lerna run init",
-    "dev": "lerna run dev --parallel",
-    "start": "lerna run start --parallel",
-    "build": "lerna run build",
-    "lint": "lerna run lint",
-    "lint:fix": "lerna run lint:fix",
-    "precommit-msg": "echo 'Running linter...' && exit 0"
+    "install:prod": "npm install --omit=dev",
+    "start": "node ./bin/www",
+    "dev": "export DEBUG=server:*&&NODE_ENV=development nodemon ./bin/www --ignore '*.json'",
+    "lint": "eslint './**/*.js' --ignore-pattern 'node_modules/**'",
+    "lint:fix": "eslint './**/*.js' --fix --ignore-pattern 'node_modules/**'"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "~1.4.6",
+    "debug": "~4.3.4",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^123.0.0",
+    "googleapis-common": "^7.0.0",
+    "jsonwebtoken": "^9.0.1",
+    "morgan": "~1.10.0",
+    "puppeteer": "^21.0.2"
   },
   "devDependencies": {
-    "lerna": "^7.1.5",
-    "nodemon": "^2.0.22",
-    "pre-commit": "^1.2.2"
-  },
-  "homepage": "https://github.com/charisTheo/rex-demo#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/charisTheo/rex-demo.git"
-  },
-  "pre-commit": [
-    "precommit-msg",
-    "lint"
-  ],
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/charisTheo/rex-demo/issues"
+    "@babel/eslint-parser": "^7.22.10",
+    "@babel/plugin-syntax-import-assertions": "^7.22.5",
+    "eslint": "^7.20.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^3.0.1",
+    "open": "^9.1.0"
   }
 }
