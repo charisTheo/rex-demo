@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "engines": {
-    "node": "16"
+    "node": "18"
   },
   "scripts": {
     "install:prod": "npm install --omit=dev",
