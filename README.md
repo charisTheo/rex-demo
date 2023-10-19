@@ -135,29 +135,19 @@ You must match the 'Event parameter' to the name you have given your custom even
 
     1. Create an `.env` file under `./server`
 
-        ```
-        JWT_SECRET=<secret here>
-        ```
-
-    2. Add OAuth client secrets for your GCP project under `./server/controllers/oauth-client-secret.json`:
+    2. Add [GCP OAuth client secrets](https://developers.google.com/identity/protocols/oauth2/web-server) for your project:
 
         ```
-        {
-          "web": {
-            "client_id": "",
-            "project_id": "",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret": "",
-            "redirect_uris": [
-              "http://localhost:<PORT>/api/googleapis/oauth2Callback"
-            ],
-            "javascript_origins": [
-              "http://localhost:<PORT>"
-            ]
-          }
-        }
+        client_id=<...>.apps.googleusercontent.com
+        project_id=<...>
+        auth_uri=https://accounts.google.com/o/oauth2/auth
+        token_uri=https://oauth2.googleapis.com/token
+        auth_provider_x509_cert_url=https://www.googleapis.com/oauth2/v1/certs
+        client_secret=<...>
+        redirect_uri=http://localhost:3000/api/googleapis/oauth2Callback
+        backend_url=http://localhost:3000
+        frontend_url=http://localhost:8080
+        JWT_SECRET=<...>
         ```
 
 5. Run in dev mode, from the root directory of the project:
