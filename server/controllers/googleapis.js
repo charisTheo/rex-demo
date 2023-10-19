@@ -1,5 +1,4 @@
 import {google} from 'googleapis';
-// import keys from './oauth-client-secret.json' assert { type: 'json' };
 import {getReportDateFilterString} from '../utils/date.js';
 
 const URL_DIMENSION_DELIMITER = '<%REMOVE_ME%>';
@@ -91,7 +90,6 @@ export async function getReport(accessToken, propertyName) {
     requestBody: {
       dateRanges: [{startDate, endDate}],
       // Docs: https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#dimensions
-      // other helpful dimensions: deviceModel, mobileDeviceModel
       dimensions: [
         {
           name: 'URL',
